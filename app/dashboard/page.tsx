@@ -1,125 +1,124 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSession, signOut } from "next-auth/react";
+import { useState } from "react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import SpendingChart from "./components/SpendingChart";
-import AnomalyList from "./components/AnomalyList";
-import TransactionFeed from "./components/TransactionFeed";
 
-export default function DashboardPage() {
-  const { data: session, status } = useSession();
+export default function LoginPage() {
   const router = useRouter();
+  const [email, setEmail] = useState("demo@ledger.app");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const [transactions, setTransactions] = useState([]);
-  const [categorySummary, setCategorySummary] = useState([]);
-  const [anomalies, setAnomalies] = useState([]);
-  const [loading, setLoading] = useState(true);
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
 
-  const userId = (session?.user as any)?.id;
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
-    }
-  }, [status, router]);
+    setLoading(false);
 
-  useEffect(() => {
-    if (!userId) return;
-
-    async function loadData() {
-      setLoading(true);
-      const [txRes, anomalyRes] = await Promise.all([
-        fetch(`/api/transactions?userId=${userId}`),
-        fetch(`/api/anomalies?userId=${userId}`),
-      ]);
-      const txData = await txRes.json();
-      const anomalyData = await anomalyRes.json();
-
-      setTransactions(txData.transactions ?? []);
-      setCategorySummary(txData.categorySummary ?? []);
-      setAnomalies(anomalyData.anomalies ?? []);
-      setLoading(false);
+    if (result?.error) {
+      setError("Invalid email or password.");
+      return;
     }
 
-    loadData();
-    const interval = setInterval(loadData, 15000);
-    return () => clearInterval(interval);
-  }, [userId]);
-
-  if (status === "loading" || loading) {
-    return (
-      <main style={centeredStyle}>
-        <p style={{ color: "var(--text-muted)" }}>Loading your ledger...</p>
-      </main>
-    );
-  }
-
-  if (status === "unauthenticated") {
-    return null;
+    router.push("/dashboard");
   }
 
   return (
-    <main style={{ maxWidth: "960px", margin: "0 auto", padding: "40px 24px" }}>
-      <header
+    <main
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "24px",
+      }}
+    >
+      <form
+        onSubmit={handleSubmit}
         style={{
+          background: "var(--surface)",
+          border: "1px solid var(--border)",
+          borderRadius: "12px",
+          padding: "32px",
+          width: "100%",
+          maxWidth: "380px",
           display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "32px",
+          flexDirection: "column",
+          gap: "16px",
         }}
       >
-        <div>
-          <h1 style={{ fontSize: "24px" }}>Ledger</h1>
-          <p style={{ color: "var(--text-muted)", fontSize: "13px", margin: "4px 0 0" }}>
-            {session?.user?.email}
-          </p>
-        </div>
+        <h2 style={{ marginBottom: "4px" }}>Sign in to Ledger</h2>
+        <p style={{ color: "var(--text-muted)", fontSize: "14px", marginTop: 0 }}>
+          Use the demo account, or a user you created via the seed script.
+        </p>
+
+        <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "14px" }}>
+          Email
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            style={inputStyle}
+          />
+        </label>
+
+        <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "14px" }}>
+          Password
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            style={inputStyle}
+          />
+        </label>
+
+        {error && (
+          <p style={{ color: "var(--danger)", fontSize: "13px", margin: 0 }}>{error}</p>
+        )}
+
         <button
-          onClick={() => signOut({ callbackUrl: "/login" })}
+          type="submit"
+          disabled={loading}
           style={{
-            background: "transparent",
-            border: "1px solid var(--border)",
-            color: "var(--text-muted)",
-            borderRadius: "6px",
-            padding: "8px 14px",
-            fontSize: "13px",
+            background: "var(--accent)",
+            color: "var(--bg)",
+            border: "none",
+            borderRadius: "8px",
+            padding: "12px",
+            fontWeight: 600,
+            fontFamily: "var(--font-display)",
+            marginTop: "8px",
+            opacity: loading ? 0.7 : 1,
           }}
         >
-          Sign out
+          {loading ? "Signing in..." : "Sign in"}
         </button>
-      </header>
 
-      <section style={cardStyle}>
-        <h3 style={{ marginBottom: "16px", fontSize: "16px" }}>Spending by category</h3>
-        <SpendingChart data={categorySummary} />
-      </section>
-
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginTop: "20px" }}>
-        <section style={cardStyle}>
-          <h3 style={{ marginBottom: "16px", fontSize: "16px" }}>Anomalies</h3>
-          <AnomalyList anomalies={anomalies} />
-        </section>
-
-        <section style={cardStyle}>
-          <h3 style={{ marginBottom: "16px", fontSize: "16px" }}>Recent transactions</h3>
-          <TransactionFeed transactions={transactions} />
-        </section>
-      </div>
+        <p style={{ color: "var(--text-muted)", fontSize: "12px", textAlign: "center", margin: 0 }}>
+          Demo password after seeding: <span className="mono">demo1234</span>
+        </p>
+      </form>
     </main>
   );
 }
 
-const cardStyle: React.CSSProperties = {
-  background: "var(--surface)",
+const inputStyle: React.CSSProperties = {
+  background: "var(--surface-raised)",
   border: "1px solid var(--border)",
-  borderRadius: "12px",
-  padding: "20px",
-};
-
-const centeredStyle: React.CSSProperties = {
-  minHeight: "100vh",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
+  borderRadius: "6px",
+  padding: "10px 12px",
+  color: "var(--text)",
+  fontSize: "14px",
+  outline: "none",
 };
