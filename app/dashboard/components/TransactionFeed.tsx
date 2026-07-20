@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 type Transaction = {
   id: number;
@@ -34,7 +34,7 @@ export default function TransactionFeed({ transactions }: { transactions: Transa
           <div>
             <div style={{ fontSize: "14px" }}>{t.merchant}</div>
             <div style={{ fontSize: "12px", color: "var(--text-muted)", textTransform: "capitalize" }}>
-              {t.category} · {new Date(t.occurred_at).toLocaleDateString()}
+              {t.category} - {new Date(t.occurred_at).toLocaleDateString()}
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
@@ -53,7 +53,7 @@ export default function TransactionFeed({ transactions }: { transactions: Transa
               </span>
             )}
             <span className="mono" style={{ fontSize: "14px" }}>
-              ₹{Number(t.amount).toFixed(2)}
+              Rs {Number(t.amount).toFixed(2)}
             </span>
           </div>
         </div>

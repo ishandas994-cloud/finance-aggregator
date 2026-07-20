@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 type Anomaly = {
   id: number;
@@ -45,7 +45,7 @@ export default function AnomalyList({ anomalies }: { anomalies: Anomaly[] }) {
           <div>
             <div style={{ fontSize: "14px", marginBottom: "4px" }}>{a.reason}</div>
             <div className="mono" style={{ fontSize: "12px", color: "var(--text-muted)" }}>
-              {a.merchant} · ₹{Number(a.amount).toFixed(2)} · {new Date(a.detected_at).toLocaleString()}
+              {a.merchant} - Rs {Number(a.amount).toFixed(2)} - {new Date(a.detected_at).toLocaleString()}
             </div>
           </div>
           <span
