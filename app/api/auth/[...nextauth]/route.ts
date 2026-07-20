@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import { sql } from "@/lib/db";
 
 export const authOptions: NextAuthOptions = {
-  session: { strategy: "jwt" }, // JWT sessions, not DB sessions -- keeps this stateless-friendly for serverless
+  session: { strategy: "jwt" },
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -44,4 +44,3 @@ export const authOptions: NextAuthOptions = {
 
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
-
