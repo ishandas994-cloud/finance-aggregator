@@ -1,7 +1,6 @@
-@'
-"use client";
+﻿"use client";
 
-import { useState } from "react";
+import { useState, FormEvent, CSSProperties } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -9,10 +8,10 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("demo@ledger.app");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
     setLoading(true);
@@ -58,7 +57,7 @@ export default function LoginPage() {
   );
 }
 
-const inputStyle = {
+const inputStyle: CSSProperties = {
   background: "var(--surface-raised)",
   border: "1px solid var(--border)",
   borderRadius: "6px",
@@ -67,4 +66,3 @@ const inputStyle = {
   fontSize: "14px",
   outline: "none",
 };
-'@ | Set-Content -Path "app\login\page.tsx" -Encoding utf8
