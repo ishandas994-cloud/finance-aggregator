@@ -33,7 +33,7 @@ CREATE INDEX IF NOT EXISTS idx_transactions_user_category
 
 CREATE TABLE IF NOT EXISTS anomalies (
   id             SERIAL PRIMARY KEY,
-  transaction_id INTEGER REFERENCES transactions(id) ON DELETE CASCADE,
+  transaction_id INTEGER REFERENCES tr  ansactions(id) ON DELETE CASCADE,
   user_id        INTEGER REFERENCES users(id) ON DELETE CASCADE,
   reason         TEXT NOT NULL,
   severity       TEXT NOT NULL DEFAULT 'medium', -- low | medium | high
